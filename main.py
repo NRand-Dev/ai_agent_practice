@@ -24,6 +24,8 @@ def main():
     # Setup argparse
     parse = argparse.ArgumentParser(description="Chatbot")
     parse.add_argument("user_prompt", type=str, help="User prompt")
+    # Add optional "Verbose" flag - Print extra prompt and response details.
+    parse.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parse.parse_args()
 
     # Setup message dictionaries with OpenAI SDK.
@@ -38,11 +40,13 @@ def main():
         messages=messages,
     )
 
-
-    # Token Usage Data - Print statements for debugging
-    if response is not None:
+    # Verbose flag logic
+    if args.verbose == True and response is not None:
+        print(f'User prompt: {args.user_prompt}')
         print(f'Prompt tokens: {response.usage.prompt_tokens}')
         print(f'Response tokens: {response.usage.completion_tokens}')
+
+
 
     print(response.choices[0].message.content)
 
