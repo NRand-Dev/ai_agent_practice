@@ -1,4 +1,5 @@
 import os
+import argparse
 from dotenv import load_dotenv
 
 from openai import OpenAI, chat
@@ -19,15 +20,22 @@ def main():
             api_key = api_key,
     )
 
+
+    # Setup argparse
+    parse = argparse.ArgumentParser(description="Chatbot")
+    parse.add_argument("user_prompt", type=str, help="User prompt")
+    args = parse.parse_args()
+
+    # Setup message dictionaries with OpenAI SDK.
+    messages = [
+        {"role": "user", "content": args.user_prompt},
+    ]
+
+
     # Get Response
     response = client.chat.completions.create(
         model="openrouter/free",
-        messages=[
-            {
-                "role": "user",
-                "content": "Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum.",
-            }
-        ],
+        messages=messages,
     )
 
 
@@ -37,6 +45,7 @@ def main():
         print(f'Response tokens: {response.usage.completion_tokens}')
 
     print(response.choices[0].message.content)
+
 
 
 if __name__ == "__main__":
