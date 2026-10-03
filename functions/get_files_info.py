@@ -1,5 +1,27 @@
 import os
 
+
+# Schema for LLM to describe functions it would like to call
+# We do NOT pass working directory to the LLM, so that we can control that ourselves without any outside input.
+schema_get_files_info = {
+    "type": "function",
+    "function": {
+        "name": "get_files_info",
+        "description": "Lists files in a specified directory relative to the working directory, providing file size and directory status",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "directory": {
+                    "type": "string",
+                    "description": "Directory path to list files from, relative to the working directory (default is the working directory itself)",
+                },
+            },
+        },
+    },
+}
+
+# --- GET_FILES_INFO NOTES --- #
+
 # NOTE: get_files_info() should ALWAYS return a string. If errors can be raised, we need to catch those and return error messages as strings.
 # This allows the LLM to handle errors gracefully by always having a statement to print.
 

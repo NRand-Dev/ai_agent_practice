@@ -1,9 +1,12 @@
 import os
 import argparse
+import json
 from dotenv import load_dotenv
-from prompts import system_prompt
 
 from openai import OpenAI, chat
+
+from prompts import system_prompt
+from functions import call_function
 
 
 def main():
@@ -40,7 +43,11 @@ def main():
     response = client.chat.completions.create(
         model="openrouter/free",
         messages=messages,
+        tools=call_function.available_functions,
     )
+
+    # Check if message has any function calls
+
 
     # Verbose flag logic
     if args.verbose == True and response is not None:
@@ -48,9 +55,14 @@ def main():
         print(f'Prompt tokens: {response.usage.prompt_tokens}')
         print(f'Response tokens: {response.usage.completion_tokens}')
 
-
-
-    print(response.choices[0].message.content)
+    # Check for functin calls
+    message = response.choices[0].message
+    if message.tool_calls:
+        for tool_call in message.tool_calls:
+            function_args = json.loads(tool_call.function.arguments or "{}")
+            print(f"Calling function: {tool_call.function.name}({function_args})")
+    else:
+        print(message.content)
 
 
 

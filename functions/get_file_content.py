@@ -3,6 +3,23 @@ import os
 # Maximum characters we will read of a file.
 MAX_CHARS = 10000
 
+schema_get_file_content = {
+    "type": "function",
+    "function": {
+        "name": "get_file_content",
+        "description": "Gets contents of  a file in a specified file_path relative to the working directory.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "File_path to list files from, relative to the working directory (default is the working directory itself)",
+                },
+            },
+        },
+    },
+}
+
 def get_file_content(working_directory: str, file_path: str) -> str:
     try:
         absolute_path = os.path.abspath(working_directory)
