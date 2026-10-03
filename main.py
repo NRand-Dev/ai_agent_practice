@@ -1,12 +1,14 @@
+from ast import arg
 import os
 import argparse
 import json
+
 from dotenv import load_dotenv
 
 from openai import OpenAI, chat
 
 from prompts import system_prompt
-from functions import call_function
+from call_function import available_functions, call_function
 
 
 def main():
@@ -43,7 +45,7 @@ def main():
     response = client.chat.completions.create(
         model="openrouter/free",
         messages=messages,
-        tools=call_function.available_functions,
+        tools=available_functions,
     )
 
     # Check if message has any function calls
@@ -59,9 +61,13 @@ def main():
     message = response.choices[0].message
     if message.tool_calls:
         for tool_call in message.tool_calls:
-            function_args = json.loads(tool_call.function.arguments or "{}")
-            print(f"Calling function: {tool_call.function.name}({function_args})")
-    else:
+            result_message = call_function(tool_call, verbose=args.verbose)
+
+            if not result_message["content"]:
+                raise Exception(f"ERROR: Unexpected error")
+            if args.verbose:
+                print(f"-> {result_message['content']}")
+
         print(message.content)
 
 

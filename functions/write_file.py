@@ -8,11 +8,16 @@ schema_write_file = {
         "parameters": {
             "type": "object",
             "properties": {
-                "directory": {
+                "file_path": {
                     "type": "string",
-                    "description": "Directory path to list files from, relative to the working directory (default is the working directory itself)",
+                    "description": "File path to write too, relative to the working directory (default is the working directory itself)",
                 },
+                "content": {
+                    "type": "string",
+                    "description": "Content to be written to file.",
+                }
             },
+            "required": ["file_path", "content"],
         },
     },
 }
