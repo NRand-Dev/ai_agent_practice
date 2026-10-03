@@ -1,6 +1,7 @@
 import os
 import argparse
 from dotenv import load_dotenv
+from prompts import system_prompt
 
 from openai import OpenAI, chat
 
@@ -30,6 +31,7 @@ def main():
 
     # Setup message dictionaries with OpenAI SDK.
     messages = [
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": args.user_prompt},
     ]
 
