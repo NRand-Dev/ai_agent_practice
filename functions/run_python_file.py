@@ -13,6 +13,11 @@ schema_run_python_file = {
                     "type": "string",
                     "description": "File_path to python module, relative to the working directory (default is the working directory itself)",
                 },
+                "args": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "arguments passed to function being called.",
+                }
             },
         },
     },

@@ -1,4 +1,4 @@
-from ast import arg
+import sys
 import os
 import argparse
 import json
@@ -41,35 +41,49 @@ def main():
     ]
 
 
-    # Get Response
-    response = client.chat.completions.create(
-        model="openrouter/free",
-        messages=messages,
-        tools=available_functions,
-    )
 
-    # Check if message has any function calls
+    for _ in range(20):
+        # Get Response
+        response = client.chat.completions.create(
+            model="openrouter/free",
+            messages=messages,
+            tools=available_functions,
+        )
+
+        # Verbose flag logic
+        if args.verbose == True and response is not None:
+            print(f'User prompt: {args.user_prompt}')
+            print(f'Prompt tokens: {response.usage.prompt_tokens}')
+            print(f'Response tokens: {response.usage.completion_tokens}')
 
 
-    # Verbose flag logic
-    if args.verbose == True and response is not None:
-        print(f'User prompt: {args.user_prompt}')
-        print(f'Prompt tokens: {response.usage.prompt_tokens}')
-        print(f'Response tokens: {response.usage.completion_tokens}')
+        # Check for functin calls
+        # ## Assistant Messages appended here
+        message = response.choices[0].message
+        messages.append(message)
 
-    # Check for functin calls
-    message = response.choices[0].message
-    if message.tool_calls:
-        for tool_call in message.tool_calls:
-            result_message = call_function(tool_call, verbose=args.verbose)
+        ## Tool calls, print output, add to messages/convo history
+        # If not tool calls, return the response
+        if not message.tool_calls:
+            print(message.content)
+            return
 
-            if not result_message["content"]:
-                raise Exception(f"ERROR: Unexpected error")
-            if args.verbose:
-                print(f"-> {result_message['content']}")
+        elif message.tool_calls:
+            for tool_call in message.tool_calls:
+                result_message = call_function(tool_call, verbose=args.verbose)
 
-        print(message.content)
+                if not result_message["content"]:
+                    raise Exception(f"ERROR: Unexpected error")
+                if args.verbose:
+                    print(f"-> {result_message['content']}")
 
+                messages.append(result_message)
+                #print(f'{result_message}')
+
+        # Check for maximum iterations
+        if _ > 20:
+            print(f"ERROR: More than 20 iterations.")
+            sys.exit(1)
 
 
 if __name__ == "__main__":
